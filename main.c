@@ -5,6 +5,13 @@
 #include <fcntl.h>
 #include <errno.h>
 
+// 色付きテキスト用のマクロ定義
+#define GREEN "\033[32m"     // 緑色（成功）
+#define RED "\033[31m"       // 赤色（失敗）
+#define RESET "\033[0m"      // 色をリセット
+#define COLOR_OK GREEN "OK" RESET
+#define COLOR_KO RED "KO" RESET
+
 size_t ft_strlen(const char *s);
 char *ft_strcpy(char *dst, const char *src);
 int ft_strcmp(const char *s1, const char *s2);
@@ -20,7 +27,7 @@ void test_strlen(const char *str)
     printf("文字列: \"%s\"\n", str);
     printf("元のstrlen: %zu\n", original);
     printf("ft_strlen: %zu\n", mine);
-    printf("結果: %s\n\n", (original == mine) ? "OK" : "KO");
+    printf("結果: %s\n\n", (original == mine) ? COLOR_OK : COLOR_KO);
 }
 
 void test_strcpy(const char *src)
@@ -41,8 +48,8 @@ void test_strcpy(const char *src)
     printf("コピー元: \"%s\"\n", src);
     printf("元のstrcpy: \"%s\"\n", dst1);
     printf("ft_strcpy: \"%s\"\n", dst2);
-    printf("コピー元とコピー先が同じ: %s\n", strcmp(dst1, dst2) == 0 ? "OK" : "KO");
-    printf("戻り値が正しい: %s\n\n", (ret1 == dst1 && ret2 == dst2) ? "OK" : "KO");
+    printf("コピー元とコピー先が同じ: %s\n", strcmp(dst1, dst2) == 0 ? COLOR_OK : COLOR_KO);
+    printf("戻り値が正しい: %s\n\n", (ret1 == dst1 && ret2 == dst2) ? COLOR_OK : COLOR_KO);
     
     free(dst1);
     free(dst2);
@@ -60,7 +67,7 @@ void test_strcmp(const char *s1, const char *s2)
     printf("文字列2: \"%s\"\n", s2);
     printf("元のstrcmp: %d\n", original);
     printf("ft_strcmp: %d\n", mine);
-    printf("完全一致: %s\n\n", exact_match ? "OK" : "KO");
+    printf("完全一致: %s\n\n", exact_match ? COLOR_OK : COLOR_KO);
 }
 
 void test_write_normal()
@@ -76,7 +83,7 @@ void test_write_normal()
     
     printf("元のwrite戻り値: %zd\n", original);
     printf("ft_write戻り値: %zd\n", mine);
-    printf("結果: %s\n\n", (original == mine) ? "OK" : "KO");
+    printf("結果: %s\n\n", (original == mine) ? COLOR_OK : COLOR_KO);
     
     // ファイルへの書き込みテスト
     char filename[] = "test_write.txt";
@@ -98,7 +105,7 @@ void test_write_normal()
     
     printf("元のwrite戻り値: %zd\n", original);
     printf("ft_write戻り値: %zd\n", mine);
-    printf("結果: %s\n\n", (original == mine) ? "OK" : "KO");
+    printf("結果: %s\n\n", (original == mine) ? COLOR_OK : COLOR_KO);
     
     // ファイルの内容確認
     fd = open(filename, O_RDONLY);
@@ -107,7 +114,7 @@ void test_write_normal()
     close(fd);
     
     printf("ファイルの内容: %s", read_buffer);
-    printf("ファイルに正しく書き込まれた: %s\n\n", (read_bytes == (ssize_t)(len * 2)) ? "OK" : "KO");
+    printf("ファイルに正しく書き込まれた: %s\n\n", (read_bytes == (ssize_t)(len * 2)) ? COLOR_OK : COLOR_KO);
     
     // 後片付け
     unlink(filename);
@@ -133,7 +140,7 @@ void test_write_error()
     
     printf("元のwrite戻り値: %zd, errno: %d (%s)\n", original, original_errno, strerror(original_errno));
     printf("ft_write戻り値: %zd, errno: %d (%s)\n", mine, mine_errno, strerror(mine_errno));
-    printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? "OK" : "KO");
+    printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? COLOR_OK : COLOR_KO);
     
     // 無効なバッファポインタ
     printf("無効なバッファポインタで書き込み:\n");
@@ -148,7 +155,7 @@ void test_write_error()
     
     printf("元のwrite戻り値: %zd, errno: %d (%s)\n", original, original_errno, strerror(original_errno));
     printf("ft_write戻り値: %zd, errno: %d (%s)\n", mine, mine_errno, strerror(mine_errno));
-    printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? "OK" : "KO");
+    printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? COLOR_OK : COLOR_KO);
 }
 
 void test_read_normal()
@@ -192,7 +199,7 @@ void test_read_normal()
     printf("部分読み込み (10バイト):\n");
     printf("元のread: \"%.*s\", 戻り値: %zd\n", (int)original, buffer1, original);
     printf("ft_read: \"%.*s\", 戻り値: %zd\n", (int)mine, buffer2, mine);
-    printf("結果: %s\n\n", (original == mine && strncmp(buffer1, buffer2, original) == 0) ? "OK" : "KO");
+    printf("結果: %s\n\n", (original == mine && strncmp(buffer1, buffer2, original) == 0) ? COLOR_OK : COLOR_KO);
     
     // ファイル全体を読み込む
     fd = open(filename, O_RDONLY);
@@ -210,7 +217,7 @@ void test_read_normal()
     printf("ファイル全体読み込み:\n");
     printf("元のread: \"%s\", 戻り値: %zd\n", buffer1, original);
     printf("ft_read: \"%s\", 戻り値: %zd\n", buffer2, mine);
-    printf("結果: %s\n\n", (original == mine && strcmp(buffer1, buffer2) == 0) ? "OK" : "KO");
+    printf("結果: %s\n\n", (original == mine && strcmp(buffer1, buffer2) == 0) ? COLOR_OK : COLOR_KO);
     
     // 後片付け
     unlink(filename);
@@ -235,7 +242,7 @@ void test_read_error()
     
     printf("元のread戻り値: %zd, errno: %d (%s)\n", original, original_errno, strerror(original_errno));
     printf("ft_read戻り値: %zd, errno: %d (%s)\n", mine, mine_errno, strerror(mine_errno));
-    printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? "OK" : "KO");
+    printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? COLOR_OK : COLOR_KO);
 }
 
 void test_strdup(const char *str)
@@ -266,7 +273,7 @@ void test_strdup(const char *str)
         content_ok = 0; // false
     }
     
-    printf("内容が同じ: %s\n", content_ok ? "OK" : "KO");
+    printf("内容が同じ: %s\n", content_ok ? COLOR_OK : COLOR_KO);
     
     // メモリアドレスが異なるか確認
     int address_ok;
@@ -276,7 +283,7 @@ void test_strdup(const char *str)
             address_ok = 1;
         else
             address_ok = 0;
-        printf("メモリアドレスが異なる: %s\n\n", address_ok ? "OK" : "KO");
+        printf("メモリアドレスが異なる: %s\n\n", address_ok ? COLOR_OK : COLOR_KO);
     } else {
         // 片方でもNULLならアドレスチェックは実施しない
         printf("メモリアドレスの比較: 不可（片方または両方がNULL）\n\n");
