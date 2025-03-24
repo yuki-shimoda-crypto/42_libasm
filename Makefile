@@ -6,7 +6,7 @@ ASMFLAGS	= -f elf64
 AR			= ar rcs
 RM			= rm -f
 
-SRCS		= ft_strlen.s
+SRCS		= ft_strlen.s ft_strcpy.s
 
 OBJS		= $(SRCS:.s=.o)
 

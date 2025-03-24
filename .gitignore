@@ -3,6 +3,10 @@ en.subject.md
 en.subject.pdf
 ja.subject.md
 
+
+# libasm
+*.a
+
 # Created by https://www.toptal.com/developers/gitignore/api/assembler,linux,macos,vim,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=assembler,linux,macos,vim,windows
 
