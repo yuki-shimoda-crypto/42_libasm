@@ -10,6 +10,7 @@ char *ft_strcpy(char *dst, const char *src);
 int ft_strcmp(const char *s1, const char *s2);
 ssize_t ft_write(int fd, const void *buf, size_t count);
 ssize_t ft_read(int fd, void *buf, size_t count);
+char *ft_strdup(const char *s);
 
 void test_strlen(const char *str)
 {
@@ -237,6 +238,54 @@ void test_read_error()
     printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? "OK" : "KO");
 }
 
+void test_strdup(const char *str)
+{
+    char *original = strdup(str);
+    char *mine = ft_strdup(str);
+    
+    printf("元の文字列: \"%s\"\n", str);
+    printf("strdupの結果: \"%s\"\n", original);
+    printf("ft_strdupの結果: \"%s\"\n", mine);
+    
+    // 内容が同じか確認
+    int content_ok;
+    
+    // ケース1: 両方のポインタが有効で、内容が一致
+    if (original && mine) {
+        if (strcmp(original, mine) == 0)
+            content_ok = 1;
+        else
+            content_ok = 0;
+    }
+    // ケース2: 両方とも失敗（NULLを返した）場合も一致とみなす
+    else if (!original && !mine) {
+        content_ok = 1; // true
+    }
+    // ケース3: 一方だけ成功、一方だけ失敗
+    else {
+        content_ok = 0; // false
+    }
+    
+    printf("内容が同じ: %s\n", content_ok ? "OK" : "KO");
+    
+    // メモリアドレスが異なるか確認
+    int address_ok;
+    if (original && mine) {
+        // 両方とも有効な場合のみアドレス比較
+        if (original != mine)
+            address_ok = 1;
+        else
+            address_ok = 0;
+        printf("メモリアドレスが異なる: %s\n\n", address_ok ? "OK" : "KO");
+    } else {
+        // 片方でもNULLならアドレスチェックは実施しない
+        printf("メモリアドレスの比較: 不可（片方または両方がNULL）\n\n");
+    }
+    
+    free(original);
+    free(mine);
+}
+
 int main(void)
 {
     printf("===== ft_strlen テスト =====\n");
@@ -282,6 +331,14 @@ int main(void)
     printf("\n===== ft_read テスト =====\n");
     test_read_normal();
     test_read_error();
+    
+    printf("\n===== ft_strdup テスト =====\n");
+    test_strdup("");
+    test_strdup("Hello");
+    test_strdup("Hello, World!");
+    test_strdup("42Tokyo");
+    test_strdup("あいうえお");  // 日本語文字列 (マルチバイト文字)
+    test_strdup("1234567890123456789012345678901234567890");  // 長い文字列
     
     return (0);
 } 
