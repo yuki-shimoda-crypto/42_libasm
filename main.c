@@ -9,6 +9,7 @@ size_t ft_strlen(const char *s);
 char *ft_strcpy(char *dst, const char *src);
 int ft_strcmp(const char *s1, const char *s2);
 ssize_t ft_write(int fd, const void *buf, size_t count);
+ssize_t ft_read(int fd, void *buf, size_t count);
 
 void test_strlen(const char *str)
 {
@@ -149,6 +150,93 @@ void test_write_error()
     printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? "OK" : "KO");
 }
 
+void test_read_normal()
+{
+    // テスト用のファイルを作成
+    char filename[] = "test_read.txt";
+    char content[] = "This is a test file for ft_read function.";
+    int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    
+    if (fd < 0) {
+        perror("open for write");
+        return;
+    }
+    
+    write(fd, content, strlen(content));
+    close(fd);
+    
+    printf("--- 通常のreadテスト ---\n");
+    
+    // 標準的なread操作のテスト
+    fd = open(filename, O_RDONLY);
+    if (fd < 0) {
+        perror("open for read");
+        unlink(filename);
+        return;
+    }
+    
+    char buffer1[100] = {0};
+    char buffer2[100] = {0};
+    
+    // 最初の10バイトを読み込む
+    lseek(fd, 0, SEEK_SET);
+    ssize_t original = read(fd, buffer1, 10);
+    
+    // ファイルポインタを先頭に戻す
+    lseek(fd, 0, SEEK_SET);
+    ssize_t mine = ft_read(fd, buffer2, 10);
+    
+    close(fd);
+    
+    printf("部分読み込み (10バイト):\n");
+    printf("元のread: \"%.*s\", 戻り値: %zd\n", (int)original, buffer1, original);
+    printf("ft_read: \"%.*s\", 戻り値: %zd\n", (int)mine, buffer2, mine);
+    printf("結果: %s\n\n", (original == mine && strncmp(buffer1, buffer2, original) == 0) ? "OK" : "KO");
+    
+    // ファイル全体を読み込む
+    fd = open(filename, O_RDONLY);
+    memset(buffer1, 0, sizeof(buffer1));
+    memset(buffer2, 0, sizeof(buffer2));
+    
+    original = read(fd, buffer1, sizeof(buffer1) - 1);
+    
+    // ファイルポインタを先頭に戻す
+    lseek(fd, 0, SEEK_SET);
+    mine = ft_read(fd, buffer2, sizeof(buffer2) - 1);
+    
+    close(fd);
+    
+    printf("ファイル全体読み込み:\n");
+    printf("元のread: \"%s\", 戻り値: %zd\n", buffer1, original);
+    printf("ft_read: \"%s\", 戻り値: %zd\n", buffer2, mine);
+    printf("結果: %s\n\n", (original == mine && strcmp(buffer1, buffer2) == 0) ? "OK" : "KO");
+    
+    // 後片付け
+    unlink(filename);
+}
+
+void test_read_error()
+{
+    char buffer[100] = {0};
+    
+    printf("--- エラーケースのreadテスト ---\n");
+    
+    // 無効なファイルディスクリプタ
+    printf("無効なファイルディスクリプタから読み込み:\n");
+    
+    errno = 0;
+    ssize_t original = read(-1, buffer, sizeof(buffer) - 1);
+    int original_errno = errno;
+    
+    errno = 0;
+    ssize_t mine = ft_read(-1, buffer, sizeof(buffer) - 1);
+    int mine_errno = errno;
+    
+    printf("元のread戻り値: %zd, errno: %d (%s)\n", original, original_errno, strerror(original_errno));
+    printf("ft_read戻り値: %zd, errno: %d (%s)\n", mine, mine_errno, strerror(mine_errno));
+    printf("結果: %s\n\n", (original == mine && original_errno == mine_errno) ? "OK" : "KO");
+}
+
 int main(void)
 {
     printf("===== ft_strlen テスト =====\n");
@@ -190,6 +278,10 @@ int main(void)
     printf("\n===== ft_write テスト =====\n");
     test_write_normal();
     test_write_error();
+    
+    printf("\n===== ft_read テスト =====\n");
+    test_read_normal();
+    test_read_error();
     
     return (0);
 } 
